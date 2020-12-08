@@ -5,6 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using OpenTelemetry;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using WebApi.Data;
 using WebApi.Filters;
@@ -40,23 +43,37 @@ namespace WebApi
             services.AddHttpClient();
 
             // Add OpenTelemetry
-            services.AddOpenTelemetryTracing(configure => configure
-                .SetSampler(new AlwaysOnSampler())
-                .AddZipkinExporter(o =>
-                {
-                    o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
-                    o.ServiceName = "FruitStand";
-                })
-                .AddJaegerExporter(o =>
-                {
-                    o.AgentHost = "localhost";
-                    o.AgentPort = 6831;
-                })
-                .AddSource("CustomTrace")
-                .AddHttpClientInstrumentation()
-                .AddAspNetCoreInstrumentation()
-                .AddSqlClientInstrumentation(opt => opt.SetTextCommandContent = true)
-            );
+            services.AddOpenTelemetryTracing((serviceProvider, tracerBuilder) =>
+            {
+                // Make the logger factory available to the dependency injection
+                // container so that it may be injected into the OpenTelemetry Tracer.
+                var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+
+                tracerBuilder
+                    .SetSampler(new AlwaysOnSampler())
+                    // Adds the New Relic Exporter loading settings from the appsettings.json
+                    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(this.Configuration.GetValue<string>("NewRelic:ServiceName")))
+                    .AddNewRelicExporter(options =>
+                    {
+                        options.ApiKey = this.Configuration.GetValue<string>("NewRelic:ApiKey");
+                    })
+                    // Adds Zipkin Exporter settings
+                    .AddZipkinExporter(o =>
+                    {
+                        o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
+                        o.ServiceName = "FruitStand";
+                    })
+                    // Add Jaeger Exporter settings
+                    .AddJaegerExporter(o =>
+                    {
+                        o.AgentHost = "localhost";
+                        o.AgentPort = 6831;
+                    })
+                    .AddSource("CustomTrace")
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddSqlClientInstrumentation(opt => opt.SetTextCommandContent = true);
+            });
 
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>
@@ -82,7 +99,7 @@ namespace WebApi
 
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Observability Demo API");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "FruitStand API");
 
                 // Serve Swagger UI at the app's root level
                 c.RoutePrefix = string.Empty;
