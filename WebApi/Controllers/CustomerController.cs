@@ -29,7 +29,7 @@ namespace WebApi.Controllers
         [Route("{id}")]
         public async Task<Customer> Get(int id)
         {
-            return await _context.Customers.SingleOrDefaultAsync(c => c.Id == id);
+            return await _context.Customers.Include(c => c.Orders).SingleOrDefaultAsync(c => c.Id == id);
         }
 
         [HttpPut]

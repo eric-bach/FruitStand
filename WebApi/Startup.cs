@@ -45,7 +45,7 @@ namespace WebApi
                 .AddZipkinExporter(o =>
                 {
                     o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
-                    o.ServiceName = "ObservabilityDemo";
+                    o.ServiceName = "FruitStand";
                 })
                 .AddJaegerExporter(o =>
                 {
@@ -57,6 +57,11 @@ namespace WebApi
                 .AddAspNetCoreInstrumentation()
                 .AddSqlClientInstrumentation(opt => opt.SetTextCommandContent = true)
             );
+
+            services.AddControllersWithViews()
+                .AddNewtonsoftJson(options =>
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

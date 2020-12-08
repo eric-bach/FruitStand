@@ -29,7 +29,7 @@ namespace WebApi.Controllers
         [Route("{customerId}")]
         public async Task<List<Order>> GetByCustomerId(int customerId)
         {
-            return await _context.Orders.Where(o => o.CustomerId == customerId).ToListAsync();
+            return await _context.Orders.Include(o => o.Customer).Where(o => o.CustomerId == customerId).ToListAsync();
         }
 
         [HttpPost]

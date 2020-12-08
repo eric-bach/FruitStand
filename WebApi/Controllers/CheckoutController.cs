@@ -2,7 +2,9 @@
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using WebApi.Data;
 using WebApi.Models;
 using WebApi.ViewModels.Request;
@@ -45,7 +47,9 @@ namespace WebApi.Controllers
 
             var client = _clientFactory.CreateClient();
             client.BaseAddress = new Uri("https://run.mocky.io");
-            var response = await client.GetAsync("/v3/73826577-f697-4f5f-9abb-6d3d3325486b");
+            var json = JsonConvert.SerializeObject(""); // Dummy payment request
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await client.PostAsync("/v3/73826577-f697-4f5f-9abb-6d3d3325486b", data);
             var content = await response.Content.ReadAsStringAsync();
 
             await _context.Orders.AddAsync(order);
