@@ -42,12 +42,16 @@ namespace WebApi
 
             services.AddHttpClient();
 
+            var loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
+            var logger = loggerFactory.CreateLogger<Program>();
+            logger.LogInformation("Hello");
+
             // Add OpenTelemetry
             services.AddOpenTelemetryTracing((serviceProvider, tracerBuilder) =>
             {
                 // Make the logger factory available to the dependency injection
                 // container so that it may be injected into the OpenTelemetry Tracer.
-                var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+                //var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
 
                 tracerBuilder
                     .SetSampler(new AlwaysOnSampler())
@@ -74,7 +78,7 @@ namespace WebApi
                     .AddHttpClientInstrumentation()
                     .AddSqlClientInstrumentation(opt => opt.SetTextCommandContent = true);
 
-                var logger = loggerFactory.CreateLogger<Program>();
+                //var logger = loggerFactory.CreateLogger<Program>();
                 logger.LogInformation("Hello from {name} {price}.", "tomato", 2.99);
             });
 
