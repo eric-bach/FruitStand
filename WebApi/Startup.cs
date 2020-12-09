@@ -73,6 +73,9 @@ namespace WebApi
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSqlClientInstrumentation(opt => opt.SetTextCommandContent = true);
+
+                var logger = loggerFactory.CreateLogger<Program>();
+                logger.LogInformation("Hello from {name} {price}.", "tomato", 2.99);
             });
 
             services.AddControllersWithViews()
