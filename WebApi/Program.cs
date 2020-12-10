@@ -1,31 +1,10 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using OpenTelemetry.Trace;
-using OpenTelemetry.Logs;
 
 namespace WebApi
 {
-    //public class Program
-    //{
-    //    public static void Main(string[] args)
-    //    {
-    //        CreateHostBuilder(args).Build().Run();
-    //    }
-
-    //    public static IHostBuilder CreateHostBuilder(string[] args) =>
-    //        Host.CreateDefaultBuilder(args)
-    //            .ConfigureWebHostDefaults(webBuilder =>
-    //            {
-    //                webBuilder.UseStartup<Startup>();
-    //            });
-    //}
-
     public class Program
     {
         public static void Main(string[] args)
@@ -35,6 +14,7 @@ namespace WebApi
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
                 Host.CreateDefaultBuilder(args)
+                    // Add OpenTelemetry console exporter logging
                     .ConfigureLogging(logging =>
                     {
                         logging.AddOpenTelemetry(options => options.AddConsoleExporter());

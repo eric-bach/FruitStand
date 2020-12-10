@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using WebApi.Data;
 using WebApi.Models;
 using WebApi.ViewModels.Request;
@@ -17,11 +18,13 @@ namespace WebApi.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IHttpClientFactory _clientFactory;
+        private readonly ILogger<Program> _logger;
         private readonly StoreDbContext _context;
 
-        public OrderController(IHttpClientFactory clientFactory, StoreDbContext context)
+        public OrderController(IHttpClientFactory clientFactory, ILogger<Program> logger, StoreDbContext context)
         {
             _clientFactory = clientFactory;
+            _logger = logger;
             _context = context;
         }
 
@@ -29,16 +32,27 @@ namespace WebApi.Controllers
         [Route("{customerId}")]
         public async Task<List<Order>> GetByCustomerId(int customerId)
         {
+            _logger.LogInformation($"Looking up Order for Customer Id: {customerId}");
+
             return await _context.Orders.Include(o => o.Customer).Where(o => o.CustomerId == customerId).ToListAsync();
         }
 
         [HttpPost]
         public async Task<int> Post(OrderRequest request)
         {
+            _logger.LogInformation("Creating new Order");
+
             var order = Mapper.Map<OrderRequest, Order>(request);
 
+            _logger.LogInformation($"Looking up Customer with Id: {request.CustomerId}");
             order.Customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == request.CustomerId);
-            
+
+            if (order.Customer == null)
+            {
+                _logger.LogInformation("No such Customer found");
+                return 0;
+            }
+
             var i = 0;
             foreach (var lineItem in request.LineItems)
             {
@@ -49,6 +63,8 @@ namespace WebApi.Controllers
                         Quantity = lineItem.Quantity
                     };
             }
+
+            _logger.LogInformation("Successfully created new Order");
 
             await _context.Orders.AddAsync(order);
             return await _context.SaveChangesAsync();

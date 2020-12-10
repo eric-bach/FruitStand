@@ -42,44 +42,35 @@ namespace WebApi
 
             services.AddHttpClient();
 
-            var loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
-            var logger = loggerFactory.CreateLogger<Program>();
-            logger.LogInformation("Hello");
-
             // Add OpenTelemetry
             services.AddOpenTelemetryTracing((serviceProvider, tracerBuilder) =>
             {
-                // Make the logger factory available to the dependency injection
-                // container so that it may be injected into the OpenTelemetry Tracer.
-                //var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-
                 tracerBuilder
                     .SetSampler(new AlwaysOnSampler())
-                    // Adds the New Relic Exporter loading settings from the appsettings.json
+                    // New Relic exporter settings
                     .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(this.Configuration.GetValue<string>("NewRelic:ServiceName")))
                     .AddNewRelicExporter(options =>
                     {
                         options.ApiKey = this.Configuration.GetValue<string>("NewRelic:ApiKey");
                     })
-                    // Adds Zipkin Exporter settings
+                    // Zipkin exporter settings
                     .AddZipkinExporter(o =>
                     {
                         o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
                         o.ServiceName = "FruitStand";
                     })
-                    // Add Jaeger Exporter settings
+                    // Jaeger exporter settings
                     .AddJaegerExporter(o =>
                     {
                         o.AgentHost = "localhost";
                         o.AgentPort = 6831;
                     })
+                    // Custom tracing source
                     .AddSource("CustomTrace")
+                    // OpenTelemetry instrumentation clients
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSqlClientInstrumentation(opt => opt.SetTextCommandContent = true);
-
-                //var logger = loggerFactory.CreateLogger<Program>();
-                logger.LogInformation("Hello from {name} {price}.", "tomato", 2.99);
             });
 
             services.AddControllersWithViews()
