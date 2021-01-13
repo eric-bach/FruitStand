@@ -6,9 +6,17 @@ dotnet ef database update --project WebApi
 https://designer.mocky.io/design/confirmation
 
 # Running the stack
-$ docker-compose build
-$ docker-compose up -d
-
+1. Change the IP address in appsettings.json and 2 places in Startup.cs
+2. docker-compose
+	$ docker-compose build
+	$ docker-compose up -d
+3. Open URLs
+	http://localhost:9411/zipkin/
+	http://localhost:16686
+	http://localhost:9090
+	http://localhost:3000
+	http://localhost:44000	
+	http://localhost:44000/metrics
 
 # ZipKin
 docker pull openzipkin/zipkin

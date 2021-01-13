@@ -56,13 +56,13 @@ namespace WebApi
                     // Zipkin exporter settings
                     .AddZipkinExporter(o =>
                     {
-                        o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
+                        o.Endpoint = new Uri("http://192.168.1.44:9411/api/v2/spans");
                         o.ServiceName = "FruitStand";
                     })
                     // Jaeger exporter settings
                     .AddJaegerExporter(o =>
                     {
-                        o.AgentHost = "localhost";
+                        o.AgentHost = "192.168.1.44";
                         o.AgentPort = 6831;
                     })
                     // Custom tracing source
