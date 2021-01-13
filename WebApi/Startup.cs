@@ -103,7 +103,7 @@ namespace WebApi
                 app.UseDeveloperExceptionPage();
 
                 // TODO This is a hack to ensure the Docker SQL server starts up before this executes
-                System.Threading.Thread.Sleep(10000);
+                System.Threading.Thread.Sleep(5000);
                 app.MigrateAndSeedData(development: true);
             }
             else
