@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Trace;
+using Serilog;
 
 namespace WebApi
 {
@@ -17,6 +18,8 @@ namespace WebApi
                     // Add OpenTelemetry console exporter logging
                     .ConfigureLogging(logging =>
                     {
+                        logging.ClearProviders();
+                        logging.AddSerilog();
                         logging.AddOpenTelemetry(options => options.AddConsoleExporter());
                     })
                     .ConfigureWebHostDefaults(webBuilder =>

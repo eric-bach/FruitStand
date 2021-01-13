@@ -22,8 +22,6 @@ namespace WebApi.Data
 
         private static void Migrate(this StoreDbContext context)
         {
-            context.Database.EnsureCreated();
-
             if (context.Database.GetPendingMigrations().Any())
                 context.Database.Migrate();
         }
@@ -31,7 +29,6 @@ namespace WebApi.Data
         private static void Seed(this StoreDbContext context)
         {
             context.SeedData();
-
             context.SaveChanges();
         }
     }
