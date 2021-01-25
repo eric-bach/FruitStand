@@ -3,6 +3,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Prometheus;
+using Prometheus.Client;
+using Prometheus.Client.Abstractions;
 using WebApi.Data;
 using WebApi.Models;
 using WebApi.ViewModels.Request;
@@ -17,18 +20,30 @@ namespace WebApi.Controllers
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<Program> _logger;
         private readonly StoreDbContext _context;
+        private readonly ICounter _counter;
+        private readonly IMetricFamily<ICounter> _counterFamily;
+        private readonly IMetricFamily<ICounter, (string Controller, string Action)> _counterFamilyTuple;
 
-        public CustomerController(IHttpClientFactory clientFactory, ILogger<Program> logger, StoreDbContext context)
+        public CustomerController(IHttpClientFactory clientFactory, ILogger<Program> logger, StoreDbContext context, IMetricFactory metricFactory)
         {
             _clientFactory = clientFactory;
             _logger = logger;
             _context = context;
+            _counter = metricFactory.CreateCounter("my_counter", "some help about this");
+            _counterFamily = metricFactory.CreateCounter("my_counter_td", "some help about this", "label1", "label2");
+            _counterFamilyTuple = metricFactory.CreateCounter("my_counter_tuple", "some help about this", ("Controller", "Action"), true);
         }
 
         [HttpGet]
         [Route("{id}")]
         public async Task<Customer> Get(int id)
         {
+            _logger.LogInformation($"Initial Value: {_counter.Value}");
+            _counter.Inc();
+            _logger.LogInformation($"Value {_counter.Value}");
+            _counterFamily.WithLabels("value1", "value2").Inc(2);
+            _counterFamilyTuple.WithLabels(("Counter", "Get")).Inc(3);
+
             _logger.LogInformation($"Looking up Customer with Id: {id}");
 
             return await _context.Customers.Include(c => c.Orders).SingleOrDefaultAsync(c => c.Id == id);
