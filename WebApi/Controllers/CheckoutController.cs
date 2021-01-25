@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Prometheus.Client.Abstractions;
 using WebApi.Data;
 using WebApi.Models;
 using WebApi.ViewModels.Request;
@@ -19,17 +20,22 @@ namespace WebApi.Controllers
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<Program> _logger;
         private readonly StoreDbContext _context;
+        private readonly IMetricFamily<ICounter, (string Controller, string Action)> _counter;
 
-        public CheckoutController(IHttpClientFactory clientFactory, ILogger<Program> logger, StoreDbContext context)
+        public CheckoutController(IHttpClientFactory clientFactory, ILogger<Program> logger, StoreDbContext context, IMetricFactory metricFactory)
         {
             _clientFactory = clientFactory;
             _logger = logger;
             _context = context;
+
+            _counter = metricFactory.CreateCounter("checkout_api", "Checkout API calls", ("Method", "Action"), true);
         }
 
         [HttpPost]
         public async Task<string> PostAsync([FromBody] CheckoutRequest request)
         {
+            _counter.WithLabels((ControllerContext.HttpContext.Request.Method, ControllerContext.RouteData.Values["action"].ToString())).Inc(1);
+            
             _logger.LogInformation("Check out initiated");
 
             _logger.LogInformation($"Looking up Customer with Id: {request.CustomerId}");
