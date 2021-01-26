@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{126AD464
 		shortcut.ps1 = shortcut.ps1
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi.LoadTest", "WebApi.LoadTest\WebApi.LoadTest.csproj", "{F93EE7C3-56AF-41B2-9AC3-7E5B5A278B25}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{DCCE7DA4-B249-4DEB-AB50-05FE1C4C45A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCCE7DA4-B249-4DEB-AB50-05FE1C4C45A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCCE7DA4-B249-4DEB-AB50-05FE1C4C45A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F93EE7C3-56AF-41B2-9AC3-7E5B5A278B25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F93EE7C3-56AF-41B2-9AC3-7E5B5A278B25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F93EE7C3-56AF-41B2-9AC3-7E5B5A278B25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F93EE7C3-56AF-41B2-9AC3-7E5B5A278B25}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
